@@ -20,7 +20,6 @@ type
     OrderType: string;
     Limit: double;
     Quantity: double;
-    QuantityRemaining: double;
     Commision: double;
     Price: double;
     PricePerUnit: double;
@@ -116,6 +115,7 @@ type
 implementation
 
 uses
+  dialogs,
   IPPeerClient,
   System.SysUtils,
   REST.Types,
@@ -307,9 +307,6 @@ var
   ajsonOrdersHistory: TJsonArray;
   aOrderHistory: TOrderHistory;
   k: integer;
-  temp: double;
-  ass: string;
-
 begin
   aRESTClient.BaseURL := 'https://bittrex.com/api/v1.1/account/getorderhistory';
 
@@ -358,7 +355,9 @@ begin
           ('OrderType');
 
         aOrderHistory.Quantity := ajsonOrdersHistory.Items[k].GetValue<string>
-          ('Quantity').ToDouble;
+          ('Quantity').ToDouble - ajsonOrdersHistory.Items[k].GetValue<string>
+          ('QuantityRemaining').ToDouble;
+
 
         aOrderHistory.Commision := ajsonOrdersHistory.Items[k].GetValue<string>
           ('Commission').ToDouble;
