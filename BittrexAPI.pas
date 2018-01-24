@@ -322,17 +322,30 @@ begin
   aParam.name := 'nonce';
   aParam.Value := '0';
 
-  aParam := aRESTRequest.Params.AddItem;
-  aParam.Kind := pkGETorPOST;
-  aParam.name := 'market';
-  aParam.Value := aMarket;
+  if aMarket <> '' then
+  begin
+    aParam := aRESTRequest.Params.AddItem;
+    aParam.Kind := pkGETorPOST;
+    aParam.name := 'market';
+    aParam.Value := aMarket;
+  end;
 
   aParam := aRESTRequest.Params.AddItem;
   aParam.Kind := pkHTTPHEADER;
   aParam.name := 'apisign';
-  aParam.Value := SHA512DigestToHexW(CalcHMAC_SHA512(SECRET,
-    format('https://bittrex.com/api/v1.1/account/getorderhistory?apikey=%s&nonce=0&market=%s',
-    [APIKEY, aMarket])));
+
+  if aMarket <> '' then
+  begin
+    aParam.Value := SHA512DigestToHexW(CalcHMAC_SHA512(SECRET,
+      format('https://bittrex.com/api/v1.1/account/getorderhistory?apikey=%s&nonce=0&market=%s',
+      [APIKEY, aMarket])));
+  end
+  else
+  begin
+    aParam.Value := SHA512DigestToHexW(CalcHMAC_SHA512(SECRET,
+      format('https://bittrex.com/api/v1.1/account/getorderhistory?apikey=%s&nonce=0',
+      [APIKEY])));
+  end;
 
   result := false;
 
@@ -357,7 +370,6 @@ begin
         aOrderHistory.Quantity := ajsonOrdersHistory.Items[k].GetValue<string>
           ('Quantity').ToDouble - ajsonOrdersHistory.Items[k].GetValue<string>
           ('QuantityRemaining').ToDouble;
-
 
         aOrderHistory.Commision := ajsonOrdersHistory.Items[k].GetValue<string>
           ('Commission').ToDouble;
