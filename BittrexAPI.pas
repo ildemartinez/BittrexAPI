@@ -451,10 +451,11 @@ function TMarkets.GetMarket(const aMarket: string): TMarket;
 var
   I: integer;
 begin
+  result := nil;
+
   for I := 0 to Count - 1 do
     if Items[I].MarketName = aMarket then
       result := Items[I];
-
 end;
 
 initialization
